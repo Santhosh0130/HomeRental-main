@@ -1,0 +1,13 @@
+$theme-colors: (
+    "color1" : #eed7b3,
+    "color2" : #f0e9dd,
+    "color3" : #3a363f,
+    "color4" : #f8f7f2,
+    "color5" : #8f8d74,
+    "black" : #000000,
+    "white" : #ffffff,
+) !default;
+
+$font-family-sans-serif: Roboto;
+
+@import '../node_modules/bootstrap/scss/bootstrap'

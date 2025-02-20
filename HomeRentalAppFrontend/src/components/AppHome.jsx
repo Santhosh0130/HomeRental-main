@@ -1,14 +1,13 @@
 import { React, useContext, useEffect, useState } from 'react'
 import AppCard from './AppCard.jsx'
-import AppCarousal from './AppCarousal.jsx'
-import AppSearchBox from './AppSearchBox.jsx'
+import AppCarousal from './react-components/AppCarousal.jsx'
 import { Col, Container, Row } from 'react-bootstrap';
 import HomeContext from '../context/Context.jsx';
-import FloatingButton from '../components/FloatingButton.jsx'
+import FloatingButton from './react-components/FloatingButton.jsx'
 import { useLocation } from 'react-router-dom';
 
 function AppHome() {
-    const {addHouseHandle} = useContext(HomeContext)
+    const { addHouseHandle } = useContext(HomeContext)
     const location = useLocation();
     useState(() => {
         if (location.pathname === "/home" || location.pathname === "/") addHouseHandle(true);
@@ -16,13 +15,12 @@ function AppHome() {
     }, [])
 
     const { data, isAddHouse } = useContext(HomeContext)
-    // console.log(data)
+    console.log(data)
     useEffect(() => {
-        if (data.length === 0) window.location.reload();
+        if (data.length === 0 && location.pathname !== "/home") window.location.reload();
     }, [])
     return (
         <div>
-            <AppSearchBox />
             <AppCarousal />
             <Container>
                 <Row>

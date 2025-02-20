@@ -1,7 +1,6 @@
 import { createContext, useEffect, useState } from "react"
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import { Navigate } from "react-router-dom";
 
 axios.defaults.withCredentials = true;
 const HomeContext = createContext({
@@ -17,10 +16,12 @@ const HomeContext = createContext({
   signoutHandle: () => { },
   isAddHouse: false,
   addHouseHandle: () => { },
+  userDetailsData: () => { },
 });
 
 export const HomeProvider = ({ children }) => {
   const [data, setData] = useState([]);
+  // const API = 'http://192.168.197.81:8080/';
   const API = 'http://localhost:8080/';
   const [isAuth, setIsAuth] = useState(false);
   const [isAddHouse, setIsAddHouse] = useState(true);
@@ -36,25 +37,26 @@ export const HomeProvider = ({ children }) => {
           console.log("Error fetch data: ", err);
         })
     } else {
-      console.log("data is empty")
+      console.log("data is empty ",isAuth)
     }
   }
 
-  const getUserDetails = async () => {
+  const userDetailsData = async () => {
     if (isAuth) {
       await axios.get(API + `auth/getDetails/${getUsername()}`).then((response) => {
-        console.log(response.data)
+        // console.log("Inside user details", userDetails, response.data)
         setUserDetails(response.data)
+        localStorage.setItem("userId", response.data[2])
       }).catch((err) => {
         console.log(err)
       })
     }
   }
 
-  const getOwnerDetails = async () => {
+  const ownerDetailsData = async () => {
     if (isAuth) {
       await axios.get(API + `owner/getOwner/${getUsername()}`).then((response) => {
-        console.log(response.data)
+        // console.log("Inside owner details ", ownerDetails, response.data)
         setOwnerDetails(response.data)
       }).catch((err) => {
         console.log(err)
@@ -82,20 +84,11 @@ export const HomeProvider = ({ children }) => {
   }
 
   useEffect(() => {
+    refreshAuth()
+    userDetailsData();
+    ownerDetailsData();
     refreshData();
-    getUserDetails();
-    getOwnerDetails();
   }, [isAuth])
-
-  useEffect(() => {
-    refreshAuth();
-  })
-
-  // useEffect(() => {
-  //   if(isAuth) {
-  //     refreshData();
-  //   }
-  // }, [])
 
   function getUsername() {
     const token = getCookie('jwt');
@@ -129,12 +122,12 @@ export const HomeProvider = ({ children }) => {
   }
 
   const refreshAuth = () => {
-    if (isTokenValid()) console.log("Authendicated "), setIsAuth(true)
-    else console.log("Not Authendicated"), setIsAuth(false)
+    if (isTokenValid()) setIsAuth(true), console.log("Authendicated ", isAuth)
+    else  setIsAuth(false), console.log("Not Authendicated")
   }
 
   const addHouseHandle = (val) => {
-    console.log("Add House value is, ",val)
+    // console.log("Add House value is, ",val)
     setIsAddHouse(val);
   }
 

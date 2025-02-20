@@ -16,19 +16,35 @@ function AppCard({ datavalue }) {
     const [showFav, setShowFav] = useState(datavalue.favourites)
     return (
         <>
-            <Card className='m-3'>
-                {datavalue.thumbnails.length === 0 ? <Card.Img variant="top" src={one} /> : <Card.Img variant="top" src={`http://localhost:8080/products/${datavalue.product_id}/thumbnails/${0}`} />}
-                
+            <Card className='m-3 shadow'>
+                {datavalue.thumbnails === null ? <Card.Img variant="top" src={one} /> : <Card.Img variant="top" style={{ width: "100%", height: "200px", objectFit: "cover" }} src={`http://localhost:8080/products/${datavalue.houseId}/thumbnails/${0}`} />}
 
-                <Card.ImgOverlay className='d-flex justify-content-end align-items-start'>
-                    <Button variant='primary' className='text-black text-bg-color2 fs-6' onClick={handleFav}>{showFav ? (<i className="bi bi-heart-fill"></i>) : (<i className="bi bi-heart"></i>)}</Button>
+
+                <Card.ImgOverlay className='d-flex justify-content-end align-items-start z-index-1000'>
+                    <Button variant='color1' className='d-flex justify-content-center align-items-center' style={{ width: "15%", height: "10%", fontSize: ".8em" }} onClick={handleFav}>{showFav ? (<i className="bi bi-heart-fill"></i>) : (<i className="bi bi-heart"></i>)}</Button>
                 </Card.ImgOverlay>
-                <Link to={`/det/${datavalue.product_id}`} className='text-decoration-none text-black'>
-                    <Card.Body>
-                        <Card.Title>
+                <Card.Body>
+                    {/* <Card.Title to={`/det/${datavalue.houseId}`}> */}
+                    {/* <div className='d-flex justify-content-between align-items-center'>
+                                <h5>{datavalue.addressDetails.city} City</h5>
+                                <small> ₹ {datavalue.houseDetails.rent}</small>
+                                {/* <Container>
+                                <Row className="d-flex justify-content-between align-items-center">
+                                    <Col xs={8}>
+                                        <div>{datavalue.name}</div>
+                                    </Col>
+                                    <Col xs={4} className='text-end'>
+                                        <div className='fs-6'> ₹ {datavalue.amt}</div>
+                                    </Col>
+                                </Row>
+                            </Container> */}
+                    {/* </div> */}
+                    {/* </Card.Title> */}
+                    <Link to={`/det/${datavalue.houseId}`} className='text-decoration-none text-black'>
+                        <Card.Text>
                             <div className='d-flex justify-content-between align-items-center'>
-                                <div>{datavalue.name}</div>
-                                <div className='fs-6'> ₹ {datavalue.amt}</div>
+                                <h5>{datavalue.addressDetails.city} City</h5>
+                                <small> ₹ {datavalue.houseDetails.rent}</small>
                                 {/* <Container>
                                 <Row className="d-flex justify-content-between align-items-center">
                                     <Col xs={8}>
@@ -40,25 +56,23 @@ function AppCard({ datavalue }) {
                                 </Row>
                             </Container> */}
                             </div>
-                        </Card.Title>
-                        <Card.Text>
-                            <div className="d-flex justify-content-evenly py-2 my-4 fs-6 opacity-75 border rounded">
-                                <div>{datavalue.sqrt} sqft</div>
-                                <div>{datavalue.furniture ? "furnished" : "Unfurnished"}</div>
-                                <div>{datavalue.type}</div>
+                            <div className="d-flex justify-content-evenly py-2 my-2 fs-6 opacity-75 border rounded">
+                                <small>{datavalue.houseDetails.bhk} BHK</small>
+                                {/* <small>{datavalue.houseDetails.furnished}</small> */}
+                                <small className='text-capitalize'>{datavalue.houseDetails.type}</small>
                             </div>
                             <div className="d-flex gap-1 fs-6 px-2 py-1 opacity-50">
                                 <i className="bi bi-geo-alt-fill opacity-50"></i>
-                                {datavalue.address[0].district}
+                                {datavalue.addressDetails.district}
                             </div>
                         </Card.Text>
-                        {/* <div className="d-flex justify-content-between">
+                    </Link>
+                    {/* <div className="d-flex justify-content-between">
                         <Button className='bg-color1' onClick={() => {alert("Hello")}}>Go</Button>
                         <Button variant='primary' onClick={setFav(fav ? false : true)}>{fav ? (<i class="bi bi-heart"></i>) : (<i class="bi bi-heart-fill"></i>)}</Button>
                     </div> */}
-                    </Card.Body>
-                </Link>
-            </Card>
+                </Card.Body>
+            </Card >
         </>
     );
 }

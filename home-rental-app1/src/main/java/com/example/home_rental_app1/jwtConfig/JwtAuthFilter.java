@@ -32,9 +32,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     String token = cookie.getValue();
                     String username = jwtUtill.extractUsername(token);
                     if (jwtUtill.validateToken(token, username)) {
-                        System.out.println("Checking Token from Cookie. Token: "+token+" Username: "+username);
+                        // System.out.println("Checking Token from Cookie. Token: "+token+" Username: "+username);
                         SecurityContextHolder.getContext().setAuthentication(jwtUtill.getAuthentication(token));
-                        System.out.println("Token is valid "+jwtUtill.validateToken(token, username)+" "+SecurityContextHolder.getContext().toString());
+                        // System.out.println("Token is valid "+jwtUtill.validateToken(token, username)+" "+SecurityContextHolder.getContext().toString());
                         break; // Token is valid, no need to process further
                     }
                 }

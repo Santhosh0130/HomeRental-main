@@ -1,21 +1,32 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Form, Button, Card, Container, FloatingLabel, Row, Col, Image } from "react-bootstrap";
 import AddUserImage from '../assets/add_user_background.svg'
 import axios from "axios";
 import HomeContext from "../context/Context";
+import { useNavigate } from "react-router-dom";
 
-// axios.defaults.withCredentials = true;
 const OwnerDetailsForm = () => {
-    const {API, userDetails} = useContext(HomeContext)
+    const {API, userDetails, userDetailsData} = useContext(HomeContext)
+    const navigate = useNavigate();
 
     const [ownerDetails, setOwnerDetails] = useState({
-        name: "",
-        age: "",
-        address: "",
-        phone: "",
-        email: "",
-        userId: userDetails[2],
+        name: "San",
+        age: "30",
+        address: "North Street, Madurai",
+        phone: "9876543210",
+        email: "san@email.com",
+        userId: localStorage.getItem("userId"),
     });
+
+    // useEffect(() => {
+    //     if (userDetails && userDetails.length > 0) {
+    //         setOwnerDetails((prevDetails) => ({
+    //             ...prevDetails,
+    //             userId: userDetails[2], // Update userId only when userDetails is populated
+    //         }));
+    //     }
+    // }, [userDetails]); // Re-run this effect when userDetails changes
+
 
     // Handle form changes
     const handleChange = (e) => {
@@ -32,6 +43,8 @@ const OwnerDetailsForm = () => {
             },
         }).then(() => {
             console.log("Owner's Details are Added.")
+            // userDetailsData();
+            navigate(-1)
         }).catch((err) => {
             console.log(err)
         })

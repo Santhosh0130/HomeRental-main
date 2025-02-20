@@ -29,7 +29,7 @@ public class OwnerController {
 
     @GetMapping("/getOwner/{username}")
     private ResponseEntity<List<Owner>> getOwnerDetails(@PathVariable String username) {
-        System.out.println(service.getOwner(username));
+        // System.out.println(service.getOwner(username));
         return ResponseEntity.ok(service.getOwner(username));
     }
 }

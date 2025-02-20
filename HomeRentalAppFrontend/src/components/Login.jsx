@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom'
 import HomeContext from '../context/Context';
 
-const Login = ({refreshAuth}) => {
+const Login = ({refreshAuth1}) => {
     const navigate = useNavigate();
 
     const [details, setDetails] = useState({
@@ -14,7 +14,7 @@ const Login = ({refreshAuth}) => {
         // remember: false,
     });
 
-    const {API} = useContext(HomeContext)
+    const {API, refreshAuth} = useContext(HomeContext)
 
     const handleChange = (e) => {
         setDetails({ ...details, [e.target.name]: e.target.value })
@@ -27,15 +27,15 @@ const Login = ({refreshAuth}) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        console.log(details);
+        // console.log(details);
         await axios.post(API + "auth/login", details, {
             headers: {
                 "Content-Type": "application/json",
             },
-        }).then(async (response) => {
+        }).then((response) => {
             // alert("Sign in Successful");
-            refreshAuth();
-            // navigate("/home")
+            refreshAuth1();
+            navigate("/")
         }).catch((err) => {
             console.log(err)
         })

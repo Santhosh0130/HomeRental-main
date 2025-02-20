@@ -1,4 +1,4 @@
-package com.example.home_rental_app1.modules;
+package com.example.home_rental_app1.dto;
 
 import lombok.*;
 

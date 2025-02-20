@@ -7,7 +7,7 @@ import lombok.*;
 
 @Setter
 @Getter
-@Document(collection = "UserAuth")
+@Document(collection = "userAuth")
 public class UserModule {
     @Id
     private String userId;

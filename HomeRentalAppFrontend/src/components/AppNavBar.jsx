@@ -3,6 +3,7 @@ import logo from '../assets/LOGO_rem.png'
 import { useContext, useState } from 'react';
 import HomeContext from '../context/Context';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 // import { useNavigate } from 'react-router-dom'
 
 function AppNavBar() {
@@ -31,7 +32,7 @@ function AppNavBar() {
           <div className="w-100 d-flex flex-column gap-2 px-3" >
             <div><a href="/home" className=' text-decoration-none text-black'>Home</a></div>
             <div><a href="/about" className=' text-decoration-none text-black'>About</a></div>
-            <div><a href="/my-houses" className=' text-decoration-none text-black'>Houses</a></div>
+            <div><a href="/myHouses" className=' text-decoration-none text-black'>Houses</a></div>
           </div>
         </Modal.Body>
         <Modal.Footer>
@@ -42,7 +43,7 @@ function AppNavBar() {
 
       </Modal>
       <Navbar expand={false} className="bg-color1">
-        <Container fluid className='d-flex'>
+        <Container fluid className='d-flex flex-nowrap'>
           <NavbarBrand className='d-block d-md-none' onClick={handleShow}>
             <div className="d-flex align-items-center">
               <i className="bi bi-person-circle display-6"></i>
@@ -51,14 +52,28 @@ function AppNavBar() {
           </NavbarBrand>
           <Navbar.Brand href="home" className='fw-bold fs-5 d-none d-md-block'>
             <div className="d-flex align-items-center">
-              <img src={logo} alt="Logo" width={40} height={40} className='me-2' />
+              <img src={logo} alt="Logo" width={40} height={40} className='me-1' />
               <span className="d-none d-md-block">Home Rental & Lease</span>
             </div>
           </Navbar.Brand>
 
           <div className="d-flex justify-content-end align-items-center gap-3 zindex-5">
-            <Nav className='d-none d-lg-block'>
-              <InputGroup>
+            <Nav className=''>
+              <Link to={"/filter"} className="btn p-0" >
+                <Button style={{
+                  border: "1px solid black",
+                  width: "100%",
+                  fontSize: ".9em",
+                  // textDecoration: "none",
+                  // color: "black"
+                }} className='d-none d-md-block'> Search
+                  <i className="bi bi-search ms-3"></i>
+                </Button>
+                <Button className='d-block d-md-none p-0'>
+                <i className="bi bi-search ms-3"></i>
+                </Button>
+              </Link>
+              {/* <InputGroup>
                 <Form.Control
                   placeholder="Search"
                   aria-label="Recipient's username"
@@ -77,7 +92,7 @@ function AppNavBar() {
                   <ListGroup.Item>Hello 2</ListGroup.Item>
                   <ListGroup.Item>Hello 3</ListGroup.Item>
                 </ListGroup>
-              }
+              } */}
             </Nav>
 
             <Navbar.Toggle aria-controls={`offcanvasNavbar-expand-${false}`} />
@@ -85,6 +100,7 @@ function AppNavBar() {
               id={`offcanvasNavbar-expand-${false}`}
               aria-labelledby={`offcanvasNavbarLabel-expand-${false}`}
               placement="end"
+              style={{width: "300px"}}
             >
               <Offcanvas.Header closeButton>
                 <div className="d-flex align-items-center">
@@ -96,8 +112,9 @@ function AppNavBar() {
                 <Nav className=''>
                   <Nav.Link href="/home">Dashboard</Nav.Link>
                   <Nav.Link href="/favourites">Favorites</Nav.Link>
-                  <Nav.Link href="/my-houses">My Houses</Nav.Link>
+                  <Nav.Link href="/myHouses">My Houses</Nav.Link>
                   <Nav.Link href="/filter">Filter</Nav.Link>
+                  <Nav.Link href="/addHouse">Add House</Nav.Link>
                   <Nav.Link href="/ownerRegister">Owner's Registration</Nav.Link>
                   <Nav.Link onClick={handleShow}>
                     <span className='d-none d-md-block'>Profile</span>

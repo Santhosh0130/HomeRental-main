@@ -8,14 +8,14 @@ import HomeDetail from './components/HomeDetail.jsx'
 import { createContext, useState, useEffect, useContext } from 'react'
 import HomeContext, { HomeProvider } from './context/Context'
 import AppFav from './components/AppFav.jsx'
-import HomeAdd from './components/HomeAdd.jsx'
-import AddProduct from './components/AddProduct.jsx'
 import Login from './components/Login.jsx'
 import Register from './components/Register.jsx'
 import { jwtDecode } from 'jwt-decode';
-import Loading from './components/Loading.jsx'
+import Loading from './components/react-components/Loading.jsx'
 import AddHouse from './components/AddHouse.jsx'
 import OwnerDetailsForm from './components/OwnerRegister.jsx'
+import SearchFilter from './components/SearchFilter.jsx'
+import MyHouses from './components/MyHouses.jsx'
 
 // export const HomeContext = createContext();
 
@@ -80,7 +80,9 @@ function App() {
       {/* <HomeContext.Provider value={{ allData, setAllData }}> */}
       <HomeProvider>
         <BrowserRouter>
-          {isAuth && data.length !== 0 ?
+          {/* {isAuth && data.length !== 0 ? */}
+          {/* {isAuth && data.length >= 0 ? */}
+          {isAuth ?
             <>
               <AppNavBar />
               <Routes>
@@ -93,12 +95,15 @@ function App() {
                 <Route path='/det/:id' element={<HomeDetail />}></Route>
                 <Route path='/favourites' element={<AppFav />}></Route>
                 <Route path='/addHouse' element={<AddHouse />}></Route>
+                <Route path='/updateHouse' element={<AddHouse />}></Route>
                 <Route path='/ownerRegister' element={<OwnerDetailsForm />}></Route>
+                <Route path='/filter' element={<SearchFilter />}></Route>
+                <Route path='/myHouses' element={<MyHouses />}></Route>
               </Routes>
             </> :
             <Routes>
-              <Route path='/login' element={<Login refreshAuth={refreshAuth} />} />
-              <Route path='/' element={loading ? <Loading /> : <Login refreshAuth={refreshAuth} />} />
+              <Route path='/login' element={<Login refreshAuth1={refreshAuth} />} />
+              <Route path='/' element={loading ? <Loading /> : <Login refreshAuth1={refreshAuth} />} />
               <Route path='/register' element={<Register />} />
             </Routes>
           }

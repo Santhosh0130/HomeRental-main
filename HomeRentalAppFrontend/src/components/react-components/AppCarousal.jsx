@@ -1,7 +1,7 @@
 import Carousel from 'react-bootstrap/Carousel';
-import one from '../assets/Houses/home-1.jpg'
-import two from '../assets/Houses/home-2.jpg'
-import three from '../assets/Houses/home3.jpg'
+import one from '../../assets/Houses/home-1.jpg'
+import two from '../../assets/Houses/home-2.jpg'
+import three from '../../assets/Houses/home3.jpg'
 import { Container, Row, Col } from 'react-bootstrap';
 
 function AppCarousal() {

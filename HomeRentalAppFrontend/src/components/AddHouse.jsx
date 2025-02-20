@@ -3,36 +3,54 @@ import { Form, Button, Card, Container, Row, Col, Image, FloatingLabel } from "r
 import HomeContext from "../context/Context";
 import Image1 from '../assets/login_background.svg'
 import axios from "axios";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const AddHouse = () => {
-    const { API, ownerDetails } = useContext(HomeContext)
+    const { API, ownerDetails, refreshData, userDetails } = useContext(HomeContext)
     // State for tracking the form step
     const [step, setStep] = useState(1);
+    const navigate = useNavigate();
 
-    const [selectedOwner, setSelectedOwner] = useState([])
-
-    // State for storing form data
-    // const [userDetails, setUserDetails] = useState({
-    //     name: "",
-    //     email: "",
-    // });
-    const [addressDetails, setAddressDetails] = useState({
-        house_no: "12",
-        street: "East Street",
-        city: "Kalavasal",
-        district: "Madurai",
-        state: "Tamilnadu",
-        country: "India",
-        zip: "625005",
-    });
-    const [houseDetails, setHouseDetails] = useState({
-        rent: '12000',
-        bhk: '2',
-        parking: 'Yes',
-        type: '2',
-        furnished: '1',
-    })
+    const [userId, setUserId] = useState();
+    const [selectedOwner, setSelectedOwner] = useState()
+    const [addressDetails, setAddressDetails] = useState();
+    const [houseDetails, setHouseDetails] = useState()
     const [thumbnails, setThumbnails] = useState([]);
+
+    const state = useLocation();
+    const isUpdate = state.pathname === "/updateHouse" ? true : false
+    const house = state.state;
+
+    useEffect(() => {
+        if (isUpdate) {
+            setSelectedOwner(house.ownerDetails)
+            setAddressDetails(house.addressDetails)
+            setHouseDetails(house.houseDetails)
+            setThumbnails(house.thumbnails)
+            setUserId(house.houseId)
+            // console.log(house)
+        } else {
+            setUserId(localStorage.getItem("userId"))
+            setAddressDetails({
+                house_no: "12",
+                street: "East Street",
+                city: "Kalavasal",
+                district: "Madurai",
+                state: "Tamilnadu",
+                country: "India",
+                zip: "625005",
+            });
+            setHouseDetails({
+                rent: 12000,
+                bhk: 2,
+                parking: 'yes',
+                type: 'villa',
+                furnished: "semi",
+                description: '',
+            })
+        }
+    }, [])
+
 
     // Handle changes for user details
     const handleImageChange = (e) => {
@@ -44,6 +62,10 @@ const AddHouse = () => {
         const { name, value } = e.target;
         setAddressDetails({ ...addressDetails, [name]: value });
     };
+
+    const handleChange = (e) => {
+        setSelectedOwner(ownerDetails[e.target.value]);
+    }
 
     const handleHouseDetailsChange = (e) => {
         setHouseDetails({ ...houseDetails, [e.target.name]: e.target.value });
@@ -62,30 +84,51 @@ const AddHouse = () => {
     // Form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(ownerDetails,' ',addressDetails, ' ', thumbnails)
-        
+        // console.log(selectedOwner, ' ', addressDetails, ' ', thumbnails, ' ', houseDetails)
+
         const formData = new FormData();
-        formData.append("Owner", 
-            new Blob([JSON.stringify(ownerDetails)], { type: "application/json"})
+        formData.append("User", localStorage.getItem("userId"));
+        formData.append("Owner",
+            new Blob([JSON.stringify(selectedOwner)], { type: "application/json" })
         );
-        formData.append("Address", 
-            new Blob([JSON.stringify(addressDetails)], { type: "application/json"})
+        formData.append("Address",
+            new Blob([JSON.stringify(addressDetails)], { type: "application/json" })
+        );
+        formData.append("House",
+            new Blob([JSON.stringify(houseDetails)], { type: "application/json" })
         );
 
         Array.from(thumbnails).forEach((file) => {
             formData.append("thumbnails", file);
         });
 
-        await axios.post(API + "products/addHouse", formData ,{
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
-        }).then(() => {
-            console.log("House Added")
-        }).catch((err) => {
-            console.log(err)
-        })
-        // You can also log the form data here or send it to a server
+        if(!isUpdate) {
+            await axios.post(API + "products/addHouse", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            }).then(() => {
+                console.log("House Added")
+                refreshData();
+                navigate("/")
+            }).catch((err) => {
+                console.log("Error while adding house " + err)
+            })
+        } else {
+            formData.append("HouseId", house.houseId);
+            await axios.put(API + "products/updateHouse", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            }).then(() => {
+                console.log("House Updated")
+                refreshData();
+                navigate(-1)
+            }).catch((err) => {
+                console.log("Error while updating house " + err)
+            })
+        }
+
     };
 
     return (
@@ -105,10 +148,12 @@ const AddHouse = () => {
                                         <div>
                                             <Card className="p-3" style={{ boxShadow: "inset 0px 0px 10px rgba(0,0,0,0.5)" }}>
                                                 <h5>Please select one, </h5>
+                                                {isUpdate ? <small>Previously choosen owner is <b>{house.ownerDetails.name}</b></small> : null}
                                                 {ownerDetails !== null ?
-                                                    <Form.Select size="lg" required>
+                                                    <Form.Select size="lg" required onChange={handleChange}>
+                                                        <option>Select your address</option>
                                                         {ownerDetails.map((item, index) => (
-                                                            <option key={index}>{item.name}</option>
+                                                            <option key={index} value={index}>{item.name}</option>
                                                         ))}
                                                     </Form.Select> :
                                                     <>
@@ -130,11 +175,10 @@ const AddHouse = () => {
                                 {step === 2 && (
                                     <>
                                         <h4>Address Details</h4>
-                                        <div className="d-flex gap-3 my-3">
+                                        <div className="d-flex gap-3">
                                             <FloatingLabel controlId="floatingHouseNo" label="House No" className="w-25">
                                                 <Form.Control
                                                     type="text"
-                                                    placeholder="Enter your house number"
                                                     name="house_no"
                                                     value={addressDetails.house_no}
                                                     onChange={handleAddressDetailsChange}
@@ -144,7 +188,6 @@ const AddHouse = () => {
                                             <FloatingLabel controlId="floatingStreet" label="Street" className="w-75">
                                                 <Form.Control
                                                     type="text"
-                                                    placeholder="Enter your street"
                                                     name="street"
                                                     value={addressDetails.street}
                                                     onChange={handleAddressDetailsChange}
@@ -155,7 +198,6 @@ const AddHouse = () => {
                                         <FloatingLabel controlId="floatingCity" label="City" className="my-2">
                                             <Form.Control
                                                 type="text"
-                                                placeholder="Enter your city"
                                                 name="city"
                                                 value={addressDetails.city}
                                                 onChange={handleAddressDetailsChange}
@@ -165,7 +207,6 @@ const AddHouse = () => {
                                         <FloatingLabel controlId="floatingDistrict" label="District" className="my-2">
                                             <Form.Control
                                                 type="text"
-                                                placeholder="Enter your district"
                                                 name="district"
                                                 value={addressDetails.district}
                                                 onChange={handleAddressDetailsChange}
@@ -175,7 +216,6 @@ const AddHouse = () => {
                                         <FloatingLabel controlId="floatingState" label="State" className="my-2">
                                             <Form.Control
                                                 type="text"
-                                                placeholder="Enter your state"
                                                 name="state"
                                                 value={addressDetails.state}
                                                 onChange={handleAddressDetailsChange}
@@ -186,7 +226,6 @@ const AddHouse = () => {
                                             <FloatingLabel controlId="floatingCountry" label="Country">
                                                 <Form.Control
                                                     type="text"
-                                                    placeholder="Enter your country"
                                                     name="country"
                                                     value={addressDetails.country}
                                                     onChange={handleAddressDetailsChange}
@@ -196,7 +235,6 @@ const AddHouse = () => {
                                             <FloatingLabel controlId="floatingZip" label="Zip Code">
                                                 <Form.Control
                                                     type="text"
-                                                    placeholder="Enter your zip code"
                                                     name="zip"
                                                     value={addressDetails.zip}
                                                     onChange={handleAddressDetailsChange}
@@ -238,10 +276,10 @@ const AddHouse = () => {
                                                     required
                                                 >
                                                     <option value="">Select BHK</option>
-                                                    <option value="1">1 BHK</option>
-                                                    <option value="2">2 BHK</option>
-                                                    <option value="3">3 BHK</option>
-                                                    <option value="4">4+ BHK</option>
+                                                    <option value={1}>1 BHK</option>
+                                                    <option value={2}>2 BHK</option>
+                                                    <option value={3}>3 BHK</option>
+                                                    <option value={4}>4+ BHK</option>
                                                 </Form.Select>
                                             </FloatingLabel>
 
@@ -253,8 +291,8 @@ const AddHouse = () => {
                                                     required
                                                 >
                                                     <option value="">Select Parking</option>
-                                                    <option value="Yes">Yes</option>
-                                                    <option value="No">No</option>
+                                                    <option value="yes">Yes</option>
+                                                    <option value="no">No</option>
                                                 </Form.Select>
                                             </FloatingLabel>
                                         </div>
@@ -267,9 +305,9 @@ const AddHouse = () => {
                                                 required
                                             >
                                                 <option value="">Select Type</option>
-                                                <option value="Apartment">Apartment</option>
-                                                <option value="Villa">Villa</option>
-                                                <option value="Independent House">Independent House</option>
+                                                <option value="apartment">Apartment</option>
+                                                <option value="villa">Villa</option>
+                                                <option value="independent">Independent House</option>
                                             </Form.Select>
                                         </FloatingLabel>
 
@@ -281,9 +319,9 @@ const AddHouse = () => {
                                                 required
                                             >
                                                 <option value="">Select Furnished Status</option>
-                                                <option value="Fully Furnished">Fully Furnished</option>
-                                                <option value="Semi Furnished">Semi Furnished</option>
-                                                <option value="Unfurnished">Unfurnished</option>
+                                                <option value="full">Fully Furnished</option>
+                                                <option value="semi">Semi Furnished</option>
+                                                <option value="un">Unfurnished</option>
                                             </Form.Select>
                                         </FloatingLabel>
 
@@ -297,11 +335,11 @@ const AddHouse = () => {
                                             />
                                         </FloatingLabel>
                                         <div className="p-4 d-flex align-items-center justify-content-end">
-                                            <Button variant="secondary" onClick={handlePrevStep} className="me-2 border">
+                                            <Button variant="outline" onClick={handlePrevStep} className="me-2 border">
                                                 Back
                                             </Button>
                                             <Button variant="color1" type="submit">
-                                                Submit
+                                                {isUpdate ? "Update" : "Submit"}
                                             </Button>
                                         </div>
                                     </>

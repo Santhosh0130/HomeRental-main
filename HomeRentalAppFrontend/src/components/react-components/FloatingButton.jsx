@@ -19,7 +19,7 @@ const FloatingButton = () => {
     bottom: "30px",
     right: "30px",
     zIndex: 1000,
-    fontSize: "1.5em",
+    padding: "0",
     textAlign: "center",
     borderRadius: "30%"
   };

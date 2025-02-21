@@ -3,6 +3,7 @@ import HomeContext from '../context/Context'
 import axios from 'axios';
 import { Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const MyHouses = () => {
     const { API } = useContext(HomeContext);
@@ -37,11 +38,12 @@ const List = ({ item, fetchData }) => {
 
     const handleDelete = async () => {
         await axios.delete(API + `products/delete/${item.houseId}`)
-            .then((response) => {
-                alert(response.data);
+            .then(() => {
+                toast.success("Deleted Successfully.");
                 fetchData();
             }).catch((err) => {
-                console.log("Error ", err);
+                // console.log("Error ", err);
+                toast.error("Error while deleting.")
             })
     }
     return (

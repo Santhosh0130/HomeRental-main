@@ -10,4 +10,5 @@ import com.example.home_rental_app1.modules.HouseModule;
 @Repository
 public interface HomeRepo extends MongoRepository<HouseModule, String> {
     List<HouseModule> findByUserId(String userId);
+    List<HouseModule> findByHouseId(String houseId);
 }

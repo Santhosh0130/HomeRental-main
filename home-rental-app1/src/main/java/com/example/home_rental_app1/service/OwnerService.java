@@ -1,14 +1,18 @@
 package com.example.home_rental_app1.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import com.example.home_rental_app1.dto.Owner;
 import com.example.home_rental_app1.modules.OwnerModule;
 import com.example.home_rental_app1.repo.OwnerRepo;
-import com.example.home_rental_app1.repo.UserRepo;
 
 @Service
 public class OwnerService {
@@ -17,22 +21,34 @@ public class OwnerService {
     private OwnerRepo repo;
 
     @Autowired
-    private UserRepo userRepo;
+    private MongoTemplate template;
 
-    public void addOwner(Owner details){
-        OwnerModule user = new OwnerModule();
-        user.setName(details.getName());
-        user.setAddress(details.getAddress());
-        user.setAge(details.getAge());
-        user.setEmail(details.getEmail());
-        user.setPhone(details.getPhone());
-        user.setUserId(details.getUserId());
-
-        repo.save(user);
+    public void addOwner(Owner details, String userId){
+        Query query = new Query(Criteria.where("userId").is(userId));
+        Update update = new Update().push("details", details);
+        template.upsert(query, update, OwnerModule.class);
     }
 
-    public List<Owner> getOwner(String username) {
-        String userId = userRepo.findByUsername(username).getUserId();
-        return repo.findByUserId(userId);
+    public void updateItem(Owner details, String userId) {
+        Query query = new Query(Criteria.where("userId").is(userId).and("details.phone").is(details.getPhone()));
+        Update update = new Update()
+            .set("details.$.name", details.getName())
+            .set("details.$.age", details.getAge())
+            .set("details.$.phone", details.getPhone())
+            .set("details.$.email", details.getEmail())
+            .set("details.$.address", details.getAddress());
+        template.updateFirst(query, update, OwnerModule.class);
     }
+
+    public List<Owner> getOwner(String userId) {
+        Optional<OwnerModule> data = repo.findById(userId);
+        return data.get().getDetails();
+    }
+
+    public void removeItem(Owner details, String userId) {
+        Query query = new Query(Criteria.where("userId").is(userId));
+        Update update = new Update().pull("details", details);
+        template.updateFirst(query, update, OwnerModule.class);
+    }
+
 }

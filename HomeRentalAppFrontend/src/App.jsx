@@ -7,7 +7,7 @@ import AppHome from './components/AppHome.jsx'
 import HomeDetail from './components/HomeDetail.jsx'
 import { createContext, useState, useEffect, useContext } from 'react'
 import HomeContext, { HomeProvider } from './context/Context'
-import AppFav from './components/AppFav.jsx'
+import AppCart from './components/AppCart.jsx'
 import Login from './components/Login.jsx'
 import Register from './components/Register.jsx'
 import { jwtDecode } from 'jwt-decode';
@@ -16,6 +16,8 @@ import AddHouse from './components/AddHouse.jsx'
 import OwnerDetailsForm from './components/OwnerRegister.jsx'
 import SearchFilter from './components/SearchFilter.jsx'
 import MyHouses from './components/MyHouses.jsx'
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // export const HomeContext = createContext();
 
@@ -80,6 +82,7 @@ function App() {
       {/* <HomeContext.Provider value={{ allData, setAllData }}> */}
       <HomeProvider>
         <BrowserRouter>
+        <ToastContainer />
           {/* {isAuth && data.length !== 0 ? */}
           {/* {isAuth && data.length >= 0 ? */}
           {isAuth ?
@@ -93,7 +96,7 @@ function App() {
                 <Route path='/home' element={<AppHome />}></Route>
                 {/* {loading ? <Loading /> : <Route path='/home' element={<AppHome />}></Route>} */}
                 <Route path='/det/:id' element={<HomeDetail />}></Route>
-                <Route path='/favourites' element={<AppFav />}></Route>
+                <Route path='/cart' element={<AppCart />}></Route>
                 <Route path='/addHouse' element={<AddHouse />}></Route>
                 <Route path='/updateHouse' element={<AddHouse />}></Route>
                 <Route path='/ownerRegister' element={<OwnerDetailsForm />}></Route>

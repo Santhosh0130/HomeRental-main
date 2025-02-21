@@ -15,7 +15,7 @@ function AppHome() {
     }, [])
 
     const { data, isAddHouse } = useContext(HomeContext)
-    console.log(data)
+    // console.log(data)
     useEffect(() => {
         if (data.length === 0 && location.pathname !== "/home") window.location.reload();
     }, [])
@@ -24,9 +24,9 @@ function AppHome() {
             <AppCarousal />
             <Container>
                 <Row>
-                    {data.map((item, index) => (
+                    {data.slice(0, 6).map((item, index) => (
                         <Col md={6} lg={4} key={index}>
-                            <AppCard datavalue={item} />
+                            <AppCard datavalue={item} />   
                         </Col>))}
                 </Row>
             </Container>

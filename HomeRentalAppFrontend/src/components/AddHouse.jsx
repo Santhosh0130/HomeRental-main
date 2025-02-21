@@ -1,12 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Form, Button, Card, Container, Row, Col, Image, FloatingLabel } from "react-bootstrap";
 import HomeContext from "../context/Context";
-import Image1 from '../assets/login_background.svg'
+import Image1 from '../assets/add_user_background.svg'
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const AddHouse = () => {
-    const { API, ownerDetails, refreshData, userDetails } = useContext(HomeContext)
+    const { API, ownerDetails, refreshData } = useContext(HomeContext)
     // State for tracking the form step
     const [step, setStep] = useState(1);
     const navigate = useNavigate();
@@ -21,16 +22,18 @@ const AddHouse = () => {
     const isUpdate = state.pathname === "/updateHouse" ? true : false
     const house = state.state;
 
+    // console.log(ownerDetails)
+    // const [toastMsg, setToastMsg] = useState()
+
     useEffect(() => {
         if (isUpdate) {
             setSelectedOwner(house.ownerDetails)
             setAddressDetails(house.addressDetails)
             setHouseDetails(house.houseDetails)
             setThumbnails(house.thumbnails)
-            setUserId(house.houseId)
-            // console.log(house)
+            // setUserId(house.houseId)
         } else {
-            setUserId(localStorage.getItem("userId"))
+            // setUserId(localStorage.getItem("userId"))
             setAddressDetails({
                 house_no: "12",
                 street: "East Street",
@@ -102,17 +105,24 @@ const AddHouse = () => {
             formData.append("thumbnails", file);
         });
 
-        if(!isUpdate) {
+        if (!isUpdate) {
             await axios.post(API + "products/addHouse", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
             }).then(() => {
-                console.log("House Added")
-                refreshData();
-                navigate("/")
-            }).catch((err) => {
-                console.log("Error while adding house " + err)
+                // console.log("House Added")
+                //(<ToastBox msg={"House Added Successfully."} color={"green"} />)\
+                toast.success("House Added Successfully.", {
+                    autoClose: 5000,
+                })
+                setTimeout(() => {
+                    refreshData();
+                    navigate(-1)
+                }, 5000)
+            }).catch(() => {
+                // console.log("Error while adding house " + err)
+                toast.error("Please fill all the details.")
             })
         } else {
             formData.append("HouseId", house.houseId);
@@ -121,11 +131,17 @@ const AddHouse = () => {
                     "Content-Type": "multipart/form-data",
                 },
             }).then(() => {
-                console.log("House Updated")
-                refreshData();
-                navigate(-1)
+                // console.log("House Updated")
+                toast.success("House Added Successfully.", {
+                    autoClose: 5000,
+                })
+                setTimeout(() => {
+                    refreshData();
+                    navigate(-1)
+                }, 3000)
             }).catch((err) => {
-                console.log("Error while updating house " + err)
+                // console.log("Error while updating house " + err)
+                toast.error("Please fill all the details.")
             })
         }
 
@@ -133,29 +149,35 @@ const AddHouse = () => {
 
     return (
         <Container fluid className="my-5">
-            <Row className='vh-90 d-flex align-items-center justify-content-center'>
-                <Col sm={6} ls={4} className='d-none d-md-block' >
-                    <Image src={Image1} />
+            {/* {toastMsg && <ToastBox msg={toastMsg} color={"green"} />} */}
+            <Row className='d-flex align-items-center justify-content-center' style={{ height: "72vh" }}>
+
+                <Col md={6} className='d-none d-md-block'>
+                    <Image src={Image1} style={{ height: "72vh" }} />
                 </Col>
-                <Col md={5} sm={12} className='d-flex align-items-center justify-content-center'>
-                    <Card className="w-100 mx-auto mt-5 shadow">
+
+                <Col md={6} sm={12} className='d-flex align-items-center justify-content-center'>
+                    <Card className="shadow">
                         <Card.Body>
                             <Form onSubmit={handleSubmit}>
                                 {/* Step 1: User Details */}
                                 {step === 1 && (
                                     <>
-                                        <h4>Owner's Details</h4>
+                                        <h4 className="my-3">Owner's Detail</h4>
                                         <div>
-                                            <Card className="p-3" style={{ boxShadow: "inset 0px 0px 10px rgba(0,0,0,0.5)" }}>
-                                                <h5>Please select one, </h5>
+                                            <Card className="py-4 px-2" style={{ boxShadow: "inset 0px 0px 10px rgba(0,0,0,0.5)" }}>
+                                                <strong>Please select one, </strong>
                                                 {isUpdate ? <small>Previously choosen owner is <b>{house.ownerDetails.name}</b></small> : null}
-                                                {ownerDetails !== null ?
-                                                    <Form.Select size="lg" required onChange={handleChange}>
-                                                        <option>Select your address</option>
-                                                        {ownerDetails.map((item, index) => (
-                                                            <option key={index} value={index}>{item.name}</option>
-                                                        ))}
-                                                    </Form.Select> :
+                                                {ownerDetails.length > 0 ?
+                                                    <div>
+                                                        <Form.Select size="lg" required onChange={handleChange}>
+                                                            <option>Select your address</option>
+                                                            {ownerDetails.map((item, index) => (
+                                                                <option key={index} value={index}>{item.name}</option>
+                                                            ))}
+                                                        </Form.Select>
+                                                        <small><a href="/ownerRegister">Add another.</a></small>
+                                                    </div> :
                                                     <>
                                                         <h3>You don't have any owner details yet!.</h3>
                                                         <a href="/ownerRegister">Owner Registration.</a>
@@ -171,91 +193,10 @@ const AddHouse = () => {
                                     </>
                                 )}
 
-                                {/* Step 2: Address Details */}
+                                {/* Step 2: House Details */}
                                 {step === 2 && (
                                     <>
-                                        <h4>Address Details</h4>
-                                        <div className="d-flex gap-3">
-                                            <FloatingLabel controlId="floatingHouseNo" label="House No" className="w-25">
-                                                <Form.Control
-                                                    type="text"
-                                                    name="house_no"
-                                                    value={addressDetails.house_no}
-                                                    onChange={handleAddressDetailsChange}
-                                                />
-                                            </FloatingLabel>
-
-                                            <FloatingLabel controlId="floatingStreet" label="Street" className="w-75">
-                                                <Form.Control
-                                                    type="text"
-                                                    name="street"
-                                                    value={addressDetails.street}
-                                                    onChange={handleAddressDetailsChange}
-                                                />
-                                            </FloatingLabel>
-                                        </div>
-
-                                        <FloatingLabel controlId="floatingCity" label="City" className="my-2">
-                                            <Form.Control
-                                                type="text"
-                                                name="city"
-                                                value={addressDetails.city}
-                                                onChange={handleAddressDetailsChange}
-                                            />
-                                        </FloatingLabel>
-
-                                        <FloatingLabel controlId="floatingDistrict" label="District" className="my-2">
-                                            <Form.Control
-                                                type="text"
-                                                name="district"
-                                                value={addressDetails.district}
-                                                onChange={handleAddressDetailsChange}
-                                            />
-                                        </FloatingLabel>
-
-                                        <FloatingLabel controlId="floatingState" label="State" className="my-2">
-                                            <Form.Control
-                                                type="text"
-                                                name="state"
-                                                value={addressDetails.state}
-                                                onChange={handleAddressDetailsChange}
-                                            />
-                                        </FloatingLabel>
-
-                                        <div className="d-flex gap-3 my-2">
-                                            <FloatingLabel controlId="floatingCountry" label="Country">
-                                                <Form.Control
-                                                    type="text"
-                                                    name="country"
-                                                    value={addressDetails.country}
-                                                    onChange={handleAddressDetailsChange}
-                                                />
-                                            </FloatingLabel>
-
-                                            <FloatingLabel controlId="floatingZip" label="Zip Code">
-                                                <Form.Control
-                                                    type="text"
-                                                    name="zip"
-                                                    value={addressDetails.zip}
-                                                    onChange={handleAddressDetailsChange}
-                                                />
-                                            </FloatingLabel>
-                                        </div>
-                                        <div className="p-4 d-flex align-items-center justify-content-end">
-                                            <Button variant="secondary" onClick={handlePrevStep} className="me-2 border">
-                                                Back
-                                            </Button>
-                                            <Button variant="color1" onClick={handleNextStep}>
-                                                Next
-                                            </Button>
-                                        </div>
-                                    </>
-                                )}
-
-                                {/* Step 3: House Details */}
-                                {step === 3 && (
-                                    <>
-                                        <h4>House Details</h4>
+                                        <h4 className="py-2">Renting House Details</h4>
                                         <FloatingLabel controlId="floatingRent" label="Rent" className="my-2">
                                             <Form.Control
                                                 type="number"
@@ -332,9 +273,93 @@ const AddHouse = () => {
                                                 accept="image/*"
                                                 multiple
                                                 onChange={handleImageChange}
+                                                required
                                             />
                                         </FloatingLabel>
-                                        <div className="p-4 d-flex align-items-center justify-content-end">
+
+                                        <div className="px-4 py-2 d-flex align-items-center justify-content-end">
+                                            <Button variant="secondary" onClick={handlePrevStep} className="me-2 border">
+                                                Back
+                                            </Button>
+                                            <Button variant="color1" onClick={handleNextStep}>
+                                                Next
+                                            </Button>
+                                        </div>
+                                    </>
+                                )}
+
+                                {/* Step 3: Address Details */}
+                                {step === 3 && (
+                                    <>
+                                        <h4 className="py-2">Renting Address</h4>
+                                        <div className="d-flex gap-3">
+                                            <FloatingLabel controlId="floatingHouseNo" label="House No" className="w-25">
+                                                <Form.Control
+                                                    type="text"
+                                                    name="house_no"
+                                                    value={addressDetails.house_no}
+                                                    onChange={handleAddressDetailsChange}
+                                                />
+                                            </FloatingLabel>
+
+                                            <FloatingLabel controlId="floatingStreet" label="Street" className="w-75">
+                                                <Form.Control
+                                                    type="text"
+                                                    name="street"
+                                                    value={addressDetails.street}
+                                                    onChange={handleAddressDetailsChange}
+                                                />
+                                            </FloatingLabel>
+                                        </div>
+
+                                        <FloatingLabel controlId="floatingCity" label="City" className="my-2">
+                                            <Form.Control
+                                                type="text"
+                                                name="city"
+                                                value={addressDetails.city}
+                                                onChange={handleAddressDetailsChange}
+                                            />
+                                        </FloatingLabel>
+
+                                        <FloatingLabel controlId="floatingDistrict" label="District" className="my-2">
+                                            <Form.Control
+                                                type="text"
+                                                name="district"
+                                                value={addressDetails.district}
+                                                onChange={handleAddressDetailsChange}
+                                            />
+                                        </FloatingLabel>
+
+                                        <FloatingLabel controlId="floatingState" label="State" className="my-2">
+                                            <Form.Control
+                                                type="text"
+                                                name="state"
+                                                value={addressDetails.state}
+                                                onChange={handleAddressDetailsChange}
+                                            />
+                                        </FloatingLabel>
+
+                                        <div className="d-flex gap-3 my-2">
+                                            <FloatingLabel controlId="floatingCountry" label="Country">
+                                                <Form.Control
+                                                    type="text"
+                                                    name="country"
+                                                    value={addressDetails.country}
+                                                    onChange={handleAddressDetailsChange}
+                                                />
+                                            </FloatingLabel>
+
+                                            <FloatingLabel controlId="floatingZip" label="Zip Code">
+                                                <Form.Control
+                                                    type="text"
+                                                    name="zip"
+                                                    value={addressDetails.zip}
+                                                    onChange={handleAddressDetailsChange}
+                                                />
+                                            </FloatingLabel>
+                                        </div>
+
+                                        <div className="px-4 py-2 d-flex align-items-center justify-content-end">
                                             <Button variant="outline" onClick={handlePrevStep} className="me-2 border">
                                                 Back
                                             </Button>

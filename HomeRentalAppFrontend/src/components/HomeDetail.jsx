@@ -1,13 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { Col, Container, Row, Image, Button, Carousel } from 'react-bootstrap'
-import one from '../assets/Houses/home-1.jpg'
+import { Col, Container, Row, Image, Button, Carousel, Modal } from 'react-bootstrap'
 import axios from 'axios'
 import HomeContext from '../context/Context'
 
 const HomeDetail = () => {
 
     const { API } = useContext(HomeContext);
+
+    const [show, setShow] = useState(false);
 
     const { id } = useParams();
     const [det, setDet] = useState([]);
@@ -27,6 +28,19 @@ const HomeDetail = () => {
 
     return (
         <>
+            <Modal onHide={() => setShow(false)} show={show} centered size='sm' >
+                <Modal.Header closeButton>
+                    <h4 className='m-0'>Owner {det.ownerDetails?.name}</h4>
+                </Modal.Header>
+                <Modal.Body>
+                    <ul className='list-unstyled'>
+                        <li>Phone No: {det.ownerDetails?.phone}</li>
+                        <li>Email: {det.ownerDetails?.email}</li>
+                        <li>Age: {det.ownerDetails?.age}</li>
+                        <li>Address: {det.ownerDetails?.address}</li>
+                    </ul>
+                </Modal.Body>
+            </Modal>
             <Container fluid>
                 <Row className='h-100 py-5 d-flex align-items-center justify-content-center' fluid>
                     <Col sm={12} md={6} lg={5}>
@@ -56,7 +70,7 @@ const HomeDetail = () => {
                             <div className="text-capitalize">Parking: {det.houseDetails?.parking}</div>
                             {/* <div className="">Address: {addr[0].house_no}, {addr[0].street}, {addr[0].city}, {addr[0].district}, {addr[0].state}, {addr[0].country} - {addr[0].zip}</div> */}
                         </div>
-                        <Button className='bg-color2 my-3'>Contact Owner</Button>
+                        <Button className='bg-color2 my-3' onClick={() => setShow(true)}>Contact Owner</Button>
                     </Col>
                 </Row>
             </Container>

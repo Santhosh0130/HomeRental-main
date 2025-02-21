@@ -2,16 +2,12 @@ import { Container, Nav, Navbar, NavbarBrand, Offcanvas, Form, Button, InputGrou
 import logo from '../assets/LOGO_rem.png'
 import { useContext, useState } from 'react';
 import HomeContext from '../context/Context';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
-// import { useNavigate } from 'react-router-dom'
 
 function AppNavBar() {
 
   const [show, setShow] = useState(false);
   const handleShow = () => setShow(true);
-  const [showSearch, setShowSearch] = useState(false)
-  const [showSearchFocused, setShowSearchFocused] = useState(false)
 
   const { userDetails, signoutHandle } = useContext(HomeContext)
 
@@ -111,7 +107,7 @@ function AppNavBar() {
               <Offcanvas.Body>
                 <Nav className=''>
                   <Nav.Link href="/home">Dashboard</Nav.Link>
-                  <Nav.Link href="/favourites">Favorites</Nav.Link>
+                  <Nav.Link href="/cart">Favorites</Nav.Link>
                   <Nav.Link href="/myHouses">My Houses</Nav.Link>
                   <Nav.Link href="/filter">Filter</Nav.Link>
                   <Nav.Link href="/addHouse">Add House</Nav.Link>

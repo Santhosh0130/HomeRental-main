@@ -1,19 +1,55 @@
 import { Button, Card } from 'react-bootstrap/';
 import one from '../assets/Houses/home-1.jpg'
 import { Link, useNavigate } from 'react-router-dom';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import HomeContext from '../context/Context';
 
 function AppCard({ datavalue }) {
 
-    const { updateFav } = useContext(HomeContext)
+    const { getCart, addToCart, removeFromCart, cart } = useContext(HomeContext)
+    const userId = localStorage.getItem("userId");
+    // const [cartData, setCartData] = useState({
+    //     userId: localStorage.getItem("userId"),
+    //     houseId: datavalue.houseId,
+    // });
+    const [showFav, setShowFav] = useState()
 
-    function handleFav() {
+    useEffect(() => {
+        if (cart != null) {
+            setShowFav(cart.includes(datavalue.houseId))
+            // console.log(cart)
+        }
+    }, [])
+
+
+    const handleFav = () => {
         setShowFav(showFav ? false : true)
-        updateFav(datavalue.id, !showFav)
+        if (!showFav) {
+            console.log("Adding ", showFav)
+            // getCart();
+            addToCart(userId, datavalue.houseId);
+        } else {
+            console.log("Removing")
+            // getCart();
+            removeFromCart(userId, datavalue.houseId);
+        }
     }
 
-    const [showFav, setShowFav] = useState(datavalue.favourites)
+    useEffect(() => {
+        // console.log("Change the cart.")
+        getCart()
+    }, [showFav]);
+
+    // useEffect(() => {
+    //     if (showFav) {
+    //         console.log("Adding ", showFav)
+    //         addToCart(userId, datavalue.houseId);
+    //     } else {
+    //         console.log("Removing")
+    //         removeFromCart(userId, datavalue.houseId);
+    //     }
+    // }, [showFav])
+
     return (
         <>
             <Card className='m-3 shadow'>
@@ -43,8 +79,8 @@ function AppCard({ datavalue }) {
                     <Link to={`/det/${datavalue.houseId}`} className='text-decoration-none text-black'>
                         <Card.Text>
                             <div className='d-flex justify-content-between align-items-center'>
-                                <h5>{datavalue.addressDetails.city} City</h5>
-                                <small> ₹ {datavalue.houseDetails.rent}</small>
+                                <h5>{datavalue.addressDetails?.city} City</h5>
+                                <small> ₹ {datavalue.houseDetails?.rent}</small>
                                 {/* <Container>
                                 <Row className="d-flex justify-content-between align-items-center">
                                     <Col xs={8}>
@@ -57,13 +93,13 @@ function AppCard({ datavalue }) {
                             </Container> */}
                             </div>
                             <div className="d-flex justify-content-evenly py-2 my-2 fs-6 opacity-75 border rounded">
-                                <small>{datavalue.houseDetails.bhk} BHK</small>
+                                <small>{datavalue.houseDetails?.bhk} BHK</small>
                                 {/* <small>{datavalue.houseDetails.furnished}</small> */}
-                                <small className='text-capitalize'>{datavalue.houseDetails.type}</small>
+                                <small className='text-capitalize'>{datavalue.houseDetails?.type}</small>
                             </div>
                             <div className="d-flex gap-1 fs-6 px-2 py-1 opacity-50">
                                 <i className="bi bi-geo-alt-fill opacity-50"></i>
-                                {datavalue.addressDetails.district}
+                                {datavalue.addressDetails?.district}
                             </div>
                         </Card.Text>
                     </Link>

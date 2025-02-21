@@ -4,25 +4,28 @@ import { jwtDecode } from "jwt-decode";
 
 axios.defaults.withCredentials = true;
 const HomeContext = createContext({
-  data: [],
-  fav: [],
-  refreshData: () => { },
-  updateFav: (id, value) => { },
   API: '',
-  refreshAuth: () => { },
   isAuth: false,
+  isAddHouse: false,
+  data: [],
+  cart: [],
   userDetails: [],
   ownerDetails: [],
-  signoutHandle: () => { },
-  isAddHouse: false,
+  refreshData: () => { },
+  getCart: () => { },
+  addToCart: (userId, houseId) => { },
+  removeFromCart: (userId, houseId) => { },
   addHouseHandle: () => { },
   userDetailsData: () => { },
+  signoutHandle: () => { },
+  refreshAuth: () => { },
 });
 
 export const HomeProvider = ({ children }) => {
-  const [data, setData] = useState([]);
   // const API = 'http://192.168.197.81:8080/';
   const API = 'http://localhost:8080/';
+  const [data, setData] = useState([]);
+  const [cart, setCart] = useState([]);
   const [isAuth, setIsAuth] = useState(false);
   const [isAddHouse, setIsAddHouse] = useState(true);
   const [userDetails, setUserDetails] = useState([])
@@ -36,8 +39,6 @@ export const HomeProvider = ({ children }) => {
         }).catch((err) => {
           console.log("Error fetch data: ", err);
         })
-    } else {
-      console.log("data is empty ",isAuth)
     }
   }
 
@@ -55,36 +56,64 @@ export const HomeProvider = ({ children }) => {
 
   const ownerDetailsData = async () => {
     if (isAuth) {
-      await axios.get(API + `owner/getOwner/${getUsername()}`).then((response) => {
-        // console.log("Inside owner details ", ownerDetails, response.data)
-        setOwnerDetails(response.data)
-      }).catch((err) => {
-        console.log(err)
-      })
+      await axios.get(API + `owner/getOwner/${localStorage.getItem("userId")}`)
+        .then((response) => {
+          // console.log("Inside owner details ", response.data)
+          setOwnerDetails(response.data)
+        }).catch((err) => {
+          console.log(err)
+        })
     }
   }
 
-  const updateFav = async (id, value) => {
-    await axios.put(API + `api/san/updateFav/${id}/${value}`)
-      .then(() => {
-        refreshData()
-      }).catch((err) => {
-        console.log("Error fetch data: ", err);
-      })
+  const getCart = async () => {
+    if (isAuth) {
+      await axios.get(API + `cart/${localStorage.getItem("userId")}`)
+        .then((response) => {
+          setCart(response.data.houseId ? response.data.houseId.split(",") : [])
+          // console.log(response.data) 
+        }).catch((err) => {
+          console.log("Error fetch data: ", err);
+        })
+    }
+  }
+
+  const addToCart = async (userId, houseId) => {
+    if (isAuth) {
+      await axios.post(API + `cart/${userId}/add?houseId=${houseId}`)
+        .then(() => {
+          // console.log("Added to cart.")
+        }).catch((err) => {
+          console.log("Error " + err)
+        })
+    }
+  }
+  const removeFromCart = async (userId, houseId) => {
+    if (isAuth) {
+      await axios.delete(API + `cart/${userId}/remove?houseId=${houseId}`)
+        .then(() => {
+          // console.log("Removed from cart.")
+        }).catch((err) => {
+          console.log("Error " + err)
+        })
+    }
   }
 
   const signoutHandle = async () => {
-    await axios.post(API + 'auth/logout')
-    .then(() => {
-      refreshAuth();
-      window.location.href = '/login';
-    }).catch((err) => {
-      console.log(err)
-    })
+    if (isAuth) {
+      await axios.post(API + 'auth/logout')
+        .then(() => {
+          refreshAuth();
+          window.location.href = '/login';
+        }).catch((err) => {
+          console.log(err)
+        })
+    }
   }
 
   useEffect(() => {
-    refreshAuth()
+    refreshAuth();
+    getCart();
     userDetailsData();
     ownerDetailsData();
     refreshData();
@@ -123,7 +152,7 @@ export const HomeProvider = ({ children }) => {
 
   const refreshAuth = () => {
     if (isTokenValid()) setIsAuth(true), console.log("Authendicated ", isAuth)
-    else  setIsAuth(false), console.log("Not Authendicated")
+    else setIsAuth(false), console.log("Not Authendicated")
   }
 
   const addHouseHandle = (val) => {
@@ -132,7 +161,7 @@ export const HomeProvider = ({ children }) => {
   }
 
   return (
-    <HomeContext.Provider value={{ data, API, isAuth, userDetails, ownerDetails, isAddHouse, addHouseHandle, signoutHandle, refreshAuth, refreshData, updateFav }}>
+    <HomeContext.Provider value={{ data, API, isAuth, userDetails, ownerDetails, isAddHouse, cart, addHouseHandle, signoutHandle, refreshAuth, refreshData, ownerDetailsData, getCart, addToCart, removeFromCart }}>
       {children}
     </HomeContext.Provider>
   );

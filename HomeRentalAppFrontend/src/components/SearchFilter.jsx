@@ -1,8 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Container, Row, Col, Form, Button, Dropdown, DropdownButton, FormControl, Card, CardBody, InputGroup } from 'react-bootstrap';
+import { Container, Row, Col, Form, Button, Image, FormControl, Card, CardBody, InputGroup } from 'react-bootstrap';
 import HomeContext from '../context/Context';
 import AppCard from './AppCard';
 import axios from 'axios';
+import NoResults from '../assets/no_results.svg'
 
 const SearchFilter = () => {
   const { API } = useContext(HomeContext);
@@ -269,7 +270,7 @@ const SearchFilter = () => {
         <Col sm={12} lg={7}>
           <Row>
             <Col sm={12} className='my-4'>
-              <div className='display-6'>Sreach Results,</div>
+              <div className='display-6 text-lg-start text-sm-center border-bottom pb-3'>Sreach Results,</div>
             </Col>
           </Row>
 
@@ -277,7 +278,12 @@ const SearchFilter = () => {
             {showResults ? filter.map((item, index) => (
               <Col sm={12} md={6} key={index}>
                 <AppCard datavalue={item} />
-              </Col>)) : (<h4>No Results Found.</h4>)}
+              </Col>)) : (
+                <div className='d-flex flex-column justify-content-center align-items-center'>
+                  <Image src={NoResults}  />
+                  <h4 className='text-color5'>No Results Found.</h4>
+                </div>
+            )}
           </Row>
         </Col>
       </Row >

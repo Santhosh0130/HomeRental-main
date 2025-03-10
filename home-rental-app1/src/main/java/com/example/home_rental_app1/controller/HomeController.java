@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,6 +13,7 @@ import com.example.home_rental_app1.dto.House;
 import com.example.home_rental_app1.dto.Owner;
 import com.example.home_rental_app1.dto.SearchFilter;
 import com.example.home_rental_app1.modules.HouseModule;
+import com.example.home_rental_app1.service.BookingService;
 import com.example.home_rental_app1.service.HomeService;
 
 @CrossOrigin
@@ -23,6 +23,7 @@ public class HomeController {
 
     @Autowired
     private HomeService service;
+    
 
     @GetMapping("/all")
     private List<HouseModule> getAll() {
@@ -94,13 +95,18 @@ public class HomeController {
         return ResponseEntity.ok("Deleted");
     }
 
-    @GetMapping("/{id}/thumbnails/{index}")
-    public ResponseEntity<byte[]> getThumbnails(@PathVariable String id, @PathVariable int index) {
-        return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(service.getThumnails(id, index));
+    @GetMapping("/search")
+    public List<HouseModule> getFilteredHouses(@ModelAttribute SearchFilter details) {
+        return service.getFilteredItems(details);
     }
 
-    @PostMapping("/search")
-    public List<HouseModule> getFilteredHouses(@RequestBody SearchFilter details) {
-        return service.getItems(details);
+    @GetMapping("/viewCount")
+    public int getViews(@RequestParam String houseId) {
+        return service.getViewCount(houseId);
+    }
+
+    @PutMapping("/incrementViews")
+    private void increment(@RequestParam String houseId) {
+        service.incrementViews(houseId);
     }
 }

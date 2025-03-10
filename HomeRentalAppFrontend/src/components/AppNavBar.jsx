@@ -66,7 +66,7 @@ function AppNavBar() {
                   <i className="bi bi-search ms-3"></i>
                 </Button>
                 <Button className='d-block d-md-none p-0'>
-                <i className="bi bi-search ms-3"></i>
+                  <i className="bi bi-search ms-3"></i>
                 </Button>
               </Link>
               {/* <InputGroup>
@@ -96,7 +96,7 @@ function AppNavBar() {
               id={`offcanvasNavbar-expand-${false}`}
               aria-labelledby={`offcanvasNavbarLabel-expand-${false}`}
               placement="end"
-              style={{width: "300px"}}
+              style={{ width: "300px" }}
             >
               <Offcanvas.Header closeButton>
                 <div className="d-flex align-items-center">
@@ -107,11 +107,12 @@ function AppNavBar() {
               <Offcanvas.Body>
                 <Nav className=''>
                   <Nav.Link href="/home">Dashboard</Nav.Link>
-                  <Nav.Link href="/cart">Favorites</Nav.Link>
+                  <Nav.Link href="/cart">Wishlists</Nav.Link>
                   <Nav.Link href="/myHouses">My Houses</Nav.Link>
                   <Nav.Link href="/filter">Filter</Nav.Link>
                   <Nav.Link href="/addHouse">Add House</Nav.Link>
                   <Nav.Link href="/ownerRegister">Owner's Registration</Nav.Link>
+                  <Nav.Link href="/notification">Notifications</Nav.Link>
                   <Nav.Link onClick={handleShow}>
                     <span className='d-none d-md-block'>Profile</span>
                   </Nav.Link>

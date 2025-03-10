@@ -15,4 +15,6 @@ public class UserModule {
     private String username;
     private String email;
     private String password;
+    private String phone;
+    private boolean enabled = false;
 }

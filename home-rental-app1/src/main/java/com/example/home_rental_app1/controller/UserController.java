@@ -15,12 +15,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.home_rental_app1.dto.Login;
 import com.example.home_rental_app1.dto.Register;
 import com.example.home_rental_app1.jwtConfig.JwtUtill;
 import com.example.home_rental_app1.service.UserService;
+
+import jakarta.mail.MessagingException;
 
 @CrossOrigin
 @RestController
@@ -65,7 +68,7 @@ public class UserController {
 
         return ResponseEntity.ok()
                 .header("Set-Cookie", cookie.toString())
-                .body("Login Successfully. Token : " + token + " " + cookie.toString());
+                .body("Login Successfully.");
     }
 
     @PostMapping("/logout")
@@ -84,9 +87,19 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody Register details) {
-        service.register(details);
-        return ResponseEntity.ok("Success");
+    public ResponseEntity<String> register(@RequestBody Register details, @RequestParam String otp) {
+        if (!service.usernameIsPresent(details.getUsername())) {
+            service.register(details, otp);
+            return ResponseEntity.ok("true");
+        } else {
+            return ResponseEntity.ok("false");
+        }
+    }
+
+    @PostMapping("/send_otp")
+    public ResponseEntity<String> sendOTP(@RequestParam String email) throws MessagingException {
+        service.sendOTP(email);
+        return ResponseEntity.ok("OTP sent to " + email);
     }
 
 }

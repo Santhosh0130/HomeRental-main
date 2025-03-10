@@ -1,7 +1,9 @@
 package com.example.home_rental_app1.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -10,9 +12,10 @@ import org.springframework.data.mongodb.core.query.Query;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException.NotFound;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.example.home_rental_app1.dto.Address;
 import com.example.home_rental_app1.dto.House;
 import com.example.home_rental_app1.dto.Owner;
@@ -21,8 +24,6 @@ import com.example.home_rental_app1.modules.DescriptionModule;
 import com.example.home_rental_app1.modules.HouseModule;
 import com.example.home_rental_app1.repo.DescriptionRepo;
 import com.example.home_rental_app1.repo.HomeRepo;
-
-import io.jsonwebtoken.io.IOException;
 
 @Service
 public class HomeService {
@@ -35,6 +36,9 @@ public class HomeService {
 
     @Autowired
     private MongoTemplate template;
+
+    @Autowired
+    private Cloudinary cloudinary;
 
     // public List<HomeModule> getAll(){
     // return repo.findAll();
@@ -62,11 +66,12 @@ public class HomeService {
 
     private void itemHandle(String userId, Owner owner, Address address, House house, List<MultipartFile> thumbnails, String houseId)
             throws java.io.IOException {
-        List<byte[]> imageThumbnails = new ArrayList<>();
+        List<String> imageThumbnails = new ArrayList<>();
         HouseModule houseDetails;
 
         for (MultipartFile file : thumbnails) {
-            imageThumbnails.add(file.getBytes());
+            // imageThumbnails.add(file.getBytes());
+            imageThumbnails.add(uploadCompressedImage(file));
         }
         if(houseId != null) {
             houseDetails = getByHouseId(houseId);
@@ -117,23 +122,7 @@ public class HomeService {
         return repo.findByUserId(userId);
     }
 
-    // public HomeModule updateFav(String id, boolean status){
-    // HomeModule updatedFav = getById(id);
-    // updatedFav.setFavourites(status);
-    // return repo.save(updatedFav);
-    // }
-
-    public byte[] getThumnails(String id, int index) throws NotFound {
-        byte[] thumbnail = getByHouseId(id).getThumbnails().get(index);
-        if (thumbnail != null) {
-            return getByHouseId(id).getThumbnails().get(index);
-        } else {
-            return null;
-        }
-    }
-
-    public List<HouseModule> getItems(SearchFilter details) {
-        // System.out.println("Filter Type, " + details.getType() + " " + details.getRent());
+    public List<HouseModule> getFilteredItems(SearchFilter details) {
         Query query = new Query();
         if (details.getRent() != 0) {
             query.addCriteria(Criteria.where("houseDetails.rent").lte(details.getRent()));
@@ -141,14 +130,11 @@ public class HomeService {
         if (details.getBhk() != 0) {
             query.addCriteria(Criteria.where("houseDetails.bhk").is(details.getBhk()));
         }
+        if (details.getArea() != null && !details.getArea().isEmpty()) {
+            query.addCriteria(Criteria.where("addressDetails.area").regex(details.getArea(), "i"));
+        }
         if (details.getCity() != null && !details.getCity().isEmpty()) {
-            query.addCriteria(Criteria.where("addressDetails.city").is(details.getCity()));
-        }
-        if (details.getDistrict() != null && !details.getDistrict().isEmpty()) {
-            query.addCriteria(Criteria.where("addressDetails.district").is(details.getDistrict()));
-        }
-        if (details.getFurnished() != null && !details.getFurnished().isEmpty()) {
-            query.addCriteria(Criteria.where("houseDetails.furnished").is(details.getFurnished()));
+            query.addCriteria(Criteria.where("addressDetails.city").regex(details.getCity(), "i"));
         }
         if (details.getParking() != null && !details.getParking().isEmpty()) {
             query.addCriteria(Criteria.where("houseDetails.parking").is(details.getParking()));
@@ -159,6 +145,34 @@ public class HomeService {
         // System.out.println("Query is: " + query.toString());
         // System.out.println("After filter, " + template.find(query, HouseModule.class));
         return template.find(query, HouseModule.class);
+    }
+
+    public String uploadCompressedImage(MultipartFile imageFile) throws IOException {
+        String imageUrl;
+        Map uploadImage;
+        try {
+            uploadImage = cloudinary.uploader().upload(imageFile.getBytes(), ObjectUtils.asMap(
+                "resource_type", "image",  // Corrected typo here
+                "quality", "auto:low",
+                "format", "jpg"
+            ));
+            imageUrl = uploadImage.get("url").toString();
+        } catch(IOException e) {
+            throw new RuntimeException("Failed to upload an image", e);
+        }
+        return imageUrl;
+    }
+
+    public int getViewCount(String houseId) {
+        return repo.findById(houseId).map(HouseModule::getViewCount) // Get view count if present
+        .orElse(0);
+    }
+
+    public void incrementViews(String houseId) {
+        repo.findById(houseId).ifPresent(house -> {
+            house.setViewCount(house.getViewCount() + 1);
+            repo.save(house);
+        });
     }
 
 }

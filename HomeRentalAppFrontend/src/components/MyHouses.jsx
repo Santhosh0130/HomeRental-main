@@ -50,10 +50,10 @@ const List = ({ item, fetchData }) => {
         <>
             <Card className='shadow m-2 p-2'>
                 <div className="d-flex align-items-center">
-                    <Card.Img variant="bottom" src={API + `products/${item.houseId}/thumbnails/${0}`} style={{ width: "100px", height: "100px", objectFit: "cover" }} />
+                    <Card.Img variant="bottom" src={item.thumbnails[0]} style={{ width: "100px", height: "100px", objectFit: "cover" }} />
                     <Card.Body className='d-flex align-items-center justify-content-between'>
                         {/* <h4>{item.addressDetails.city} city</h4> */}
-                        <div className='fs-4'>{item.addressDetails.city} city</div>
+                        <div className='fs-4'>{item.addressDetails.area}</div>
                         <div>
                             <Link to={'/updateHouse'} state={item}><i class="bi bi-pen-fill btn"></i></Link>
                             {/* <Link to={'/updateHouse'} state={item}><i class="bi bi-trash3-fill btn"></i></Link> */}

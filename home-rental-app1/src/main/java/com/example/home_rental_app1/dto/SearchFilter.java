@@ -6,10 +6,9 @@ import lombok.*;
 @Setter
 public class SearchFilter {
     private double rent;
+    private String area;
     private String city;
-    private String district;
     private String type;
-    private String furnished;
     private String parking;
     private int bhk;
 }

@@ -1,8 +1,5 @@
 package com.example.home_rental_app1.config;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +16,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.example.home_rental_app1.jwtConfig.JwtAuthFilter;
 import com.example.home_rental_app1.service.UserService;
 
@@ -54,7 +53,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(configurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/register", "/auth/login").permitAll()
+                        .requestMatchers("/auth/register", "/auth/login", "/auth/send_otp").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
@@ -88,5 +87,14 @@ public class SecurityConfig {
         authenticationManagerBuilder.userDetailsService(userService)
                 .passwordEncoder(passwordEncoder());
         return authenticationManagerBuilder.build();
+    }
+
+    @Bean
+    public Cloudinary cloudinary() {
+        return new Cloudinary(ObjectUtils.asMap(
+            "cloud_name" , "drsskhom5",
+            "api_key" , "292477171214595",
+            "api_secret", "LdfMKqgD2XTnm1n5-FunQsALAbg"
+        ));
     }
 }

@@ -11,14 +11,19 @@ const HomeContext = createContext({
   cart: [],
   userDetails: [],
   ownerDetails: [],
+  response: [],
+  request: [],
   refreshData: () => { },
   getCart: () => { },
   addToCart: (userId, houseId) => { },
   removeFromCart: (userId, houseId) => { },
   addHouseHandle: () => { },
   userDetailsData: () => { },
+  ownerDetailsData: () => { },
+  bookingDetailsData: () => { },
   signoutHandle: () => { },
   refreshAuth: () => { },
+  handleAction: (bookingId, status, houseTitle, location, ownerEmail, ownerName, whatsappNumber) => { },
 });
 
 export const HomeProvider = ({ children }) => {
@@ -30,6 +35,8 @@ export const HomeProvider = ({ children }) => {
   const [isAddHouse, setIsAddHouse] = useState(true);
   const [userDetails, setUserDetails] = useState([])
   const [ownerDetails, setOwnerDetails] = useState([])
+  const [response, setResponse] = useState([])
+  const [request, setRequest] = useState([])
 
   const refreshData = async () => {
     if (isAuth) {
@@ -48,6 +55,7 @@ export const HomeProvider = ({ children }) => {
         // console.log("Inside user details", userDetails, response.data)
         setUserDetails(response.data)
         localStorage.setItem("userId", response.data[2])
+        localStorage.setItem("userEmail", response.data[0])
       }).catch((err) => {
         console.log(err)
       })
@@ -66,8 +74,39 @@ export const HomeProvider = ({ children }) => {
     }
   }
 
-  const getCart = async () => {
+  const bookingDetailsData = async () => {
     if (isAuth) {
+      axios.get(API + `bookings/owner/${localStorage.getItem("userId")}`)
+        .then(response => setResponse(response.data))
+        .catch(error => console.error(error));
+
+
+      axios.get(API + `bookings/user/${localStorage.getItem("userId")}`)
+        .then(response => setRequest(response.data))
+        .catch(error => console.error(error));
+    }
+  }
+
+  const handleAction = async (bookingId, status, houseTitle, location, ownerEmail, ownerName, whatsappNumber) => {
+    try {
+      await axios.put(API + `bookings/${bookingId}/status?status=${status}`);
+      setRequest(request.map(request =>
+        request.id === bookingId ? { ...request, status } : request
+      ));
+    } catch (error) {
+      console.error("Failed to update booking", error);
+    }
+
+    try{
+      console.log(location, ownerEmail, whatsappNumber)
+      await axios.post(API + `bookings/sendMail?userEmail=${localStorage.getItem("userEmail") || "sangiya1235@gmail.com"}&houseTitle=${houseTitle}&isAccepted=${true}&location=${location}&ownerEmail=${ownerEmail}&ownerName=${ownerName}&whatsappNumber=${whatsappNumber}`)
+    } catch(err) {
+      console.log("Error sending a mail")
+    }
+  };
+
+  const getCart = async () => {
+    if (isAuth && localStorage.getItem("isCart")) {
       await axios.get(API + `cart/${localStorage.getItem("userId")}`)
         .then((response) => {
           setCart(response.data.houseId ? response.data.houseId.split(",") : [])
@@ -116,6 +155,7 @@ export const HomeProvider = ({ children }) => {
     getCart();
     userDetailsData();
     ownerDetailsData();
+    bookingDetailsData();
     refreshData();
   }, [isAuth])
 
@@ -161,7 +201,27 @@ export const HomeProvider = ({ children }) => {
   }
 
   return (
-    <HomeContext.Provider value={{ data, API, isAuth, userDetails, ownerDetails, isAddHouse, cart, addHouseHandle, signoutHandle, refreshAuth, refreshData, ownerDetailsData, getCart, addToCart, removeFromCart }}>
+    <HomeContext.Provider value={{
+      data,
+      API,
+      isAuth,
+      userDetails,
+      ownerDetails,
+      response,
+      request,
+      isAddHouse,
+      cart,
+      addHouseHandle,
+      signoutHandle,
+      refreshAuth,
+      refreshData,
+      ownerDetailsData,
+      bookingDetailsData,
+      handleAction,
+      getCart,
+      addToCart,
+      removeFromCart
+    }}>
       {children}
     </HomeContext.Provider>
   );

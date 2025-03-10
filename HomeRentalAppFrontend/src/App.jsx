@@ -18,6 +18,7 @@ import SearchFilter from './components/SearchFilter.jsx'
 import MyHouses from './components/MyHouses.jsx'
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Notifications from './components/Notifications.jsx'
 
 // export const HomeContext = createContext();
 
@@ -74,7 +75,7 @@ function App() {
   useEffect(() => {
     setTimeout(() => {
       setLoading(false)
-    }, 5000)
+    }, 3000)
   }, [])
 
   return (
@@ -87,12 +88,14 @@ function App() {
           {/* {isAuth && data.length >= 0 ? */}
           {isAuth ?
             <>
+              {loading ? <Loading /> :
+              <> 
               <AppNavBar />
               <Routes>
                 {/* <Route path='/home' element={<Welcome />}></Route> */}
                 {/* <Route path='/' element={<AppHome />}></Route> */}
                 {/* <Route path='/home' element={<Welcome />}></Route> */}
-                <Route path='/' element={loading ? <Loading /> : <AppHome />}></Route>
+                <Route path='/' element={<AppHome />}></Route>
                 <Route path='/home' element={<AppHome />}></Route>
                 {/* {loading ? <Loading /> : <Route path='/home' element={<AppHome />}></Route>} */}
                 <Route path='/det/:id' element={<HomeDetail />}></Route>
@@ -102,7 +105,9 @@ function App() {
                 <Route path='/ownerRegister' element={<OwnerDetailsForm />}></Route>
                 <Route path='/filter' element={<SearchFilter />}></Route>
                 <Route path='/myHouses' element={<MyHouses />}></Route>
+                <Route path='/notification' element={<Notifications />}></Route>
               </Routes>
+              </>}
             </> :
             <Routes>
               <Route path='/login' element={<Login refreshAuth1={refreshAuth} />} />

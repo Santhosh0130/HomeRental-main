@@ -5,6 +5,7 @@ import Image1 from '../assets/add_user_background.svg'
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import Loading from "./react-components/Loading";
 
 const AddHouse = () => {
     const { API, ownerDetails, refreshData } = useContext(HomeContext)
@@ -12,7 +13,7 @@ const AddHouse = () => {
     const [step, setStep] = useState(1);
     const navigate = useNavigate();
 
-    const [userId, setUserId] = useState();
+    const [loading, setLoading] = useState(false);
     const [selectedOwner, setSelectedOwner] = useState()
     const [addressDetails, setAddressDetails] = useState();
     const [houseDetails, setHouseDetails] = useState()
@@ -30,15 +31,14 @@ const AddHouse = () => {
             setSelectedOwner(house.ownerDetails)
             setAddressDetails(house.addressDetails)
             setHouseDetails(house.houseDetails)
-            setThumbnails(house.thumbnails)
             // setUserId(house.houseId)
         } else {
             // setUserId(localStorage.getItem("userId"))
             setAddressDetails({
                 house_no: "12",
                 street: "East Street",
-                city: "Kalavasal",
-                district: "Madurai",
+                area: "Kalavasal",
+                city: "Madurai",
                 state: "Tamilnadu",
                 country: "India",
                 zip: "625005",
@@ -53,6 +53,10 @@ const AddHouse = () => {
             })
         }
     }, [])
+
+    // useEffect(() => {
+
+    // }, [loading])
 
 
     // Handle changes for user details
@@ -88,6 +92,7 @@ const AddHouse = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         // console.log(selectedOwner, ' ', addressDetails, ' ', thumbnails, ' ', houseDetails)
+        setLoading(true);
 
         const formData = new FormData();
         formData.append("User", localStorage.getItem("userId"));
@@ -116,6 +121,7 @@ const AddHouse = () => {
                 toast.success("House Added Successfully.", {
                     autoClose: 5000,
                 })
+                setLoading(false)
                 setTimeout(() => {
                     refreshData();
                     navigate(-1)
@@ -135,6 +141,7 @@ const AddHouse = () => {
                 toast.success("House Added Successfully.", {
                     autoClose: 5000,
                 })
+                setLoading(false)
                 setTimeout(() => {
                     refreshData();
                     navigate(-1)
@@ -148,7 +155,8 @@ const AddHouse = () => {
     };
 
     return (
-        <Container fluid className="my-5">
+        <>
+        {loading ? <Loading /> : <Container fluid className="my-5">
             {/* {toastMsg && <ToastBox msg={toastMsg} color={"green"} />} */}
             <Row className='d-flex align-items-center justify-content-center' style={{ height: "72vh" }}>
 
@@ -312,20 +320,20 @@ const AddHouse = () => {
                                             </FloatingLabel>
                                         </div>
 
-                                        <FloatingLabel controlId="floatingCity" label="City" className="my-2">
+                                        <FloatingLabel controlId="floatingCity" label="Area" className="my-2">
                                             <Form.Control
                                                 type="text"
-                                                name="city"
-                                                value={addressDetails.city}
+                                                name="area"
+                                                value={addressDetails.area}
                                                 onChange={handleAddressDetailsChange}
                                             />
                                         </FloatingLabel>
 
-                                        <FloatingLabel controlId="floatingDistrict" label="District" className="my-2">
+                                        <FloatingLabel controlId="floatingDistrict" label="City" className="my-2">
                                             <Form.Control
                                                 type="text"
-                                                name="district"
-                                                value={addressDetails.district}
+                                                name="city"
+                                                value={addressDetails.city}
                                                 onChange={handleAddressDetailsChange}
                                             />
                                         </FloatingLabel>
@@ -374,7 +382,8 @@ const AddHouse = () => {
                     </Card>
                 </Col>
             </Row>
-        </Container>
+        </Container>}
+        </>
     );
 };
 

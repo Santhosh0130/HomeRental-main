@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { Container, Row, Col, Form, Button, Image, FormControl, Card, CardBody, InputGroup } from 'react-bootstrap';
 import HomeContext from '../context/Context';
 import AppCard from './AppCard';
@@ -6,7 +6,7 @@ import axios from 'axios';
 import NoResults from '../assets/no_results.svg'
 
 const SearchFilter = () => {
-  const { API } = useContext(HomeContext);
+  const { API, data } = useContext(HomeContext);
 
   // const [city, setCity] = useState('');
   // const [district, setDistrict] = useState('');
@@ -20,58 +20,38 @@ const SearchFilter = () => {
 
   const [filterProperties, setFilterProperties] = useState({
     rent: sliderValue,
+    area: '',
     city: '',
-    district: '',
     type: 'villa',
-    furnished: 'semi',
-    bhk: 2,
     parking: 'yes',
+    bhk: 2,
   })
 
   useEffect(() => {
     setFilterProperties((prev) => ({ ...prev, rent: sliderValue }))
   }, [sliderValue])
+  console.log(filterProperties)
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFilterProperties({ ...filterProperties, [name]: value });
+    setFilterProperties((prev) => ({ ...prev, [name]: value }));
   }
 
   const handleSliderChange = (e) => {
     setSliderValue(e.target.value); // Update the state with the slider value
   };
 
-  // useEffect(() => {
-  //   const search = async () => {
-  //     await axios.post(API + 'products/search', filterProperties, {
-  //       headers: {
-  //         'Content-Type': 'application/json', // Ensures the body is sent as JSON
-  //       },
-  //     }).then((response) => {
-  //       console.log("Searched Items", response.data)
-  //       setFilter(response.data);
-  //     }).catch((err) => {
-  //       console.log("Error ", err)
-  //     })
-  //     console.log(filter)
-  //   }
-  //   search();
-  // }, [filterProperties])
-
   const handleSearch = async () => {
-    await axios.post(API + 'products/search', filterProperties, {
-      headers: {
-        'Content-Type': 'application/json', // Ensures the body is sent as JSON
-      },
-    }).then((response) => {
-      console.log("Searched Items", response.data)
+    await axios.get(API + 'products/search', {params: filterProperties})
+    .then((response) => {
       setFilter(response.data);
       setShowResults(response.data.length > 0);
     }).catch((err) => {
       setShowResults(false)
       console.log("Error ", err)
     })
-    console.log(filter)
+    console.log("Hello")
+    console.log(filterProperties)
   };
 
   return (
@@ -86,74 +66,75 @@ const SearchFilter = () => {
       <Row>
         <Col sm={12} lg={5}>
           {/* Rent Range */}
-          <Card className='shadow m-md-4'>
-            <CardBody>
-              <Row className="mb-3">
-                <Col md={12}>
-                  <Form.Group>
-                    <Form.Label>Rent Range</Form.Label>
-                    <div>
-                      <Form.Range
-                        min={5000}
-                        max={50000}
-                        step={500}
-                        value={sliderValue}
-                        onChange={handleSliderChange}
-                      />
-                      <div className="d-flex justify-content-between">
-                        <small>₹ 5000</small>
-                        <small>₹ 50000</small>
-                      </div>
-                      <InputGroup>
-                        <InputGroup.Text>₹</InputGroup.Text>
-                        <Form.Control
-                          type='text'
+          <Form>
+            <Card className='shadow m-md-4'>
+              <CardBody>
+                <Row className="mb-3">
+                  <Col md={12}>
+                    <Form.Group>
+                      <Form.Label>Rent Range</Form.Label>
+                      <div>
+                        <Form.Range
+                          min={5000}
+                          max={50000}
+                          step={500}
                           value={sliderValue}
                           onChange={handleSliderChange}
                         />
-                        <InputGroup.Text>/M</InputGroup.Text>
-                      </InputGroup>
-                    </div>
-                  </Form.Group>
-                </Col>
-              </Row>
+                        <div className="d-flex justify-content-between">
+                          <small>₹ 5000</small>
+                          <small>₹ 50000</small>
+                        </div>
+                        <InputGroup>
+                          <InputGroup.Text>₹</InputGroup.Text>
+                          <Form.Control
+                            type='text'
+                            value={sliderValue}
+                            onChange={handleSliderChange}
+                          />
+                          <InputGroup.Text>Rent per Month</InputGroup.Text>
+                        </InputGroup>
+                      </div>
+                    </Form.Group>
+                  </Col>
+                </Row>
 
-              {/* City and District Search */}
-              <Row className="mb-3">
-                <Col md={6}>
-                  <Form.Group controlId="citySearch">
-                    <Form.Label>City</Form.Label>
-                    <FormControl
-                      type="text"
-                      placeholder="Enter area"
-                      name="city"
-                      value={filterProperties.city}
-                      onChange={handleChange}
-                    />
-                  </Form.Group>
-                </Col>
+                {/* City and District Search */}
+                <Row className="mb-3">
+                  <Col md={6}>
+                    <Form.Group controlId="areaSearch">
+                      <Form.Label>Area</Form.Label>
+                      <FormControl
+                        type="text"
+                        placeholder="Enter area"
+                        name="area"
+                        value={filterProperties.area}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
 
-                <Col md={6}>
-                  <Form.Group controlId="districtSearch">
-                    <Form.Label>District</Form.Label>
-                    <FormControl
-                      type="text"
-                      placeholder="Enter district"
-                      name="district"
-                      value={filterProperties.district}
-                      // onChange={(e) => setDistrict(e.target.value)}
-                      onChange={handleChange}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
+                  <Col md={6}>
+                    <Form.Group controlId="citySearch">
+                      <Form.Label>City</Form.Label>
+                      <FormControl
+                        type="text"
+                        placeholder="Enter city"
+                        name="city"
+                        value={filterProperties.city}
+                        // onChange={(e) => setDistrict(e.target.value)}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
 
-              {/* House Type Selection */}
-              <Row className="mb-3">
-                <Col md={6}>
-                  <Form.Group controlId="houseType">
-                    <Form.Label>House Type</Form.Label>
-                    {/* <DropdownButton
+                {/* House Type Selection */}
+                <Row className="mb-3">
+                  <Col md={6}>
+                    <Form.Group controlId="houseType">
+                      <Form.Label>House Type</Form.Label>
+                      {/* <DropdownButton
                       variant="outline-primary"
                       name="type"
                       title={filterProperties.type || 'Select House Type'}
@@ -164,113 +145,109 @@ const SearchFilter = () => {
                       <Dropdown.Item eventKey="Apartment">Apartment</Dropdown.Item>
                       <Dropdown.Item eventKey="Independent House">Independent House</Dropdown.Item>
                     </DropdownButton> */}
-                    <Form.Control
-                      as='select'
-                      name='type'
-                      value={filterProperties.type}
-                      onChange={handleChange}
-                    >
-                      <option value="villa">Villa</option>
-                      <option value="apartment">Apartment</option>
-                      <option value="independent">Idepentent House</option>
-                    </Form.Control>
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group>
-                    <Form.Label>Parking</Form.Label>
-                    <Form.Check
-                      type='radio'
-                      name='parking'
-                      label="Yes"
-                      value='yes'
-                      checked={filterProperties.parking === 'yes'}
-                      onChange={handleChange}
-                    />
-                    <Form.Check
-                      type='radio'
-                      name='parking'
-                      label="No"
-                      value='no'
-                      checked={filterProperties.parking === 'no'}
-                      onChange={handleChange}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
+                      <Form.Control
+                        as='select'
+                        name='type'
+                        value={filterProperties.type}
+                        onChange={handleChange}
+                      >
+                        <option value="villa">Villa</option>
+                        <option value="apartment">Apartment</option>
+                        <option value="independent">Independent House</option>
+                      </Form.Control>
+                    </Form.Group>
+                  </Col>
+                  
+                </Row>
 
-              {/* Furnished Status */}
-              <Row className="mb-3">
-                <Col md={6}>
-                  <Form.Group controlId="furnishedSelect">
-                    <Form.Label>Furnished</Form.Label>
-                    <Form.Check
-                      type="radio"
-                      label="Fully"
-                      name="furnished"
-                      value="full"
-                      checked={filterProperties.furnished === 'full'}
-                      // onChange={() => setFurnished('furnished')}
-                      onChange={handleChange}
-                    />
-                    <Form.Check
-                      type="radio"
-                      label="Semi"
-                      name="furnished"
-                      value="semi"
-                      checked={filterProperties.furnished === 'semi'}
-                      // onChange={() => setFurnished('unfurnished')}
-                      onChange={handleChange}
-                    />
-                    <Form.Check
-                      type="radio"
-                      label="Unfurnished"
-                      name="furnished"
-                      value="un"
-                      checked={filterProperties.furnished === 'un'}
-                      // onChange={() => setFurnished('unfurnished')}
-                      onChange={handleChange}
-                    />
-                  </Form.Group>
-                </Col>
+                {/* {/* Furnished Status */}
+                <Row className="mb-3">
+                <Col sm={6}>
+                    <Form.Group>
+                      <Form.Label>Parking</Form.Label>
+                      <Form.Control
+                        as='select'
+                        name='parking'
+                        value={filterProperties.parking}
+                        onChange={handleChange}
+                      >
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                      </Form.Control>
+                    </Form.Group>
+                  </Col>
 
-                {/* BHK Selection */}
-                <Col md={6}>
-                  <Form.Group controlId="bhkSelect">
-                    <Form.Label>BHK</Form.Label>
-                    <Form.Control
-                      as="select"
-                      value={filterProperties.bhk}
-                      name='bhk'
-                      // onChange={(e) => setBhk(e.target.value)}
-                      onChange={handleChange}
-                    >
-                      <option value="">Select BHK</option>
-                      <option value={1}>1 BHK</option>
-                      <option value={2}>2 BHK</option>
-                      <option value={3}>3 BHK</option>
-                      <option value={4}>4 BHK</option>
-                    </Form.Control>
-                  </Form.Group>
-                </Col>
-              </Row>
+                  {/* <Col md={6}>
+                    <Form.Group controlId="furnishedSelect">
+                      <Form.Label>Furnished</Form.Label>
+                      <Form.Check
+                        type="radio"
+                        label="Fully"
+                        name="furnished"
+                        value="full"
+                        checked={filterProperties.furnished === 'full'}
+                        // onChange={() => setFurnished('furnished')}
+                        onChange={handleChange}
+                      />
+                      <Form.Check
+                        type="radio"
+                        label="Semi"
+                        name="furnished"
+                        value="semi"
+                        checked={filterProperties.furnished === 'semi'}
+                        // onChange={() => setFurnished('unfurnished')}
+                        onChange={handleChange}
+                      />
+                      <Form.Check
+                        type="radio"
+                        label="Unfurnished"
+                        name="furnished"
+                        value="un"
+                        checked={filterProperties.furnished === 'un'}
+                        // onChange={() => setFurnished('unfurnished')}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col> */}
 
-              {/* Search Button */}
-              <Row className="btn btn-color1 p-0 d-flex mx-2">
-                <Col>
-                  <Button variant="primary" onClick={handleSearch}>
-                    Search
-                  </Button>
-                </Col>
-              </Row>
-            </CardBody>
-          </Card>
+                  {/* BHK Selection */}
+                  <Col sm={6}>
+                    <Form.Group controlId="bhkSelect">
+                      <Form.Label>BHK</Form.Label>
+                      <Form.Control
+                        as="select"
+                        value={filterProperties.bhk}
+                        name='bhk'
+                        // onChange={(e) => setBhk(e.target.value)}
+                        onChange={handleChange}
+                      >
+                        <option value="">Select BHK</option>
+                        <option value={1}>1 BHK</option>
+                        <option value={2}>2 BHK</option>
+                        <option value={3}>3 BHK</option>
+                        <option value={4}>4 BHK</option>
+                      </Form.Control>
+                    </Form.Group>
+                  </Col>
+                </Row>
+
+                {/* Search Button */}
+                <Row className="p-0 d-flex mx-2">
+                  <Col>
+                    <Button variant="color1" onClick={handleSearch}>
+                      Search
+                    </Button>
+                  </Col>
+                </Row>
+              </CardBody>
+            </Card>
+          </Form>
         </Col>
 
         <Col sm={12} lg={7}>
           <Row>
             <Col sm={12} className='my-4'>
-              <div className='display-6 text-lg-start text-sm-center border-bottom pb-3'>Sreach Results,</div>
+              <div className='display-6 text-lg-start text-sm-center border-bottom pb-3'>Search Results,</div>
             </Col>
           </Row>
 
@@ -279,10 +256,10 @@ const SearchFilter = () => {
               <Col sm={12} md={6} key={index}>
                 <AppCard datavalue={item} />
               </Col>)) : (
-                <div className='d-flex flex-column justify-content-center align-items-center'>
-                  <Image src={NoResults}  />
-                  <h4 className='text-color5'>No Results Found.</h4>
-                </div>
+              <div className='d-flex flex-column justify-content-center align-items-center'>
+                <Image src={NoResults} className='w-50' />
+                <h4 className='text-color5'>No Results Found.</h4>
+              </div>
             )}
           </Row>
         </Col>

@@ -38,11 +38,8 @@ function AppCarousal() {
             </Row>
             <div className="text-center my-5">
                 <h3 className="display-4">Home Rental and Leasing App</h3>
-                <p className="lead text-muted">Lorem ipsum dolor sit amet consectetur adipisicing elit. Et, harum?</p>
+                <p className="lead text-muted">Find your perfect home with ease! Rent a house that fits your needs, from budget-friendly apartments to luxurious villas, all in one place.</p>
             </div>
-            <Container>
-                <div className="opacity-75 text-center border-bottom py-2 display-6">Recently Posted</div>
-            </Container>
         </Container>
     );
 }

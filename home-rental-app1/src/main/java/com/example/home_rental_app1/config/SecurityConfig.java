@@ -38,17 +38,6 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-        //For CORS Configuration
-        // CorsConfiguration configuration = new CorsConfiguration();
-        // configuration.addAllowedOrigin("http://localhost:5173");
-        // configuration.addAllowedMethod("*");
-        // configuration.addAllowedHeader("*");
-        // configuration.setAllowCredentials(true);
-
-        // UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // source.registerCorsConfiguration("/**", configuration);
-
         return http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(configurationSource()))
@@ -63,11 +52,7 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource configurationSource() {
-        // List<String> orgins = new ArrayList<>();
-        // orgins.add("http://localhost:5173");
-        // orgins.add("http://192.168.197.81:5173");
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://192.168.197.81:5173");
         configuration.addAllowedOrigin("http://localhost:5173");
         // configuration.setAllowedOrigins(orgins);
         // configuration.addAllowedOrigin("*");
@@ -92,9 +77,7 @@ public class SecurityConfig {
     @Bean
     public Cloudinary cloudinary() {
         return new Cloudinary(ObjectUtils.asMap(
-            "cloud_name" , "drsskhom5",
-            "api_key" , "292477171214595",
-            "api_secret", "LdfMKqgD2XTnm1n5-FunQsALAbg"
+            //Setup your coludinary colud here
         ));
     }
 }
